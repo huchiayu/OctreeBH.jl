@@ -2,7 +2,6 @@ using OctreeBH
 using StaticArrays
 
 const BOXSIZE = 1.0
-const T = Float64
 
 const N = 3 #spatial dimension
 const Npart = 100000 #number of particles
@@ -23,7 +22,7 @@ center = topnode_length .* 0.5
 
 #individual smoothing length (only relevant for scatter ngbs)
 δ = 0. #add a small perturbation
-hsml = ones(T,Npart) .* hsml0 .* ( 1 .+ δ .* (rand(Npart) .- 0.5) )
+hsml = ones(Npart) .* hsml0 .* ( 1 .+ δ .* (rand(Npart) .- 0.5) )
 
 mass = ones(Npart) #particle mass
 

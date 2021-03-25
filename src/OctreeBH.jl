@@ -2,7 +2,7 @@ module OctreeBH
 using StaticArrays
 
 
-export Node, TreeGather
+export Node
 export buildtree, get_scatter_ngb_tree, get_gather_ngb_tree, nearest
 
 mutable struct PartData{N,T}
