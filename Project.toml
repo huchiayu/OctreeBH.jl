@@ -3,6 +3,9 @@ uuid = "32610584-8033-4d12-ab8e-952911879412"
 authors = ["Chia-Yu Hu <cyhu.astro@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
 [compat]
 julia = "1"
 
