@@ -10,7 +10,7 @@ GravTreeGather{N,T}() where {N,T} = GravTreeGather{N,T}(zero(SVector{N,T}),0,0)
 
 #when changing the argument of treewalk, remember to also change the recursive treewalk call inside the function body!
 function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{N,T,D},
-	openingangle::T, boxsizes::SVector{N,T}) where {N,T,D}
+	openingangle::T, softening::T, boxsizes::SVector{N,T}) where {N,T,D}
     if isLeaf(node)
         #println("in a leaf node")
         if node.p != nothing
@@ -20,7 +20,7 @@ function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{
 			r2 = sum(dx.^2)
 			#@show r2, node.p.pos, p
 			if r2 > 0.0 #exclude self contribution (r2=0)
-				r_inv = sqrt(1.0 / r2)
+				r_inv = sqrt(1.0 / (r2 + softening^2))
 				r3_inv = r_inv^3
 				ga.acc += node.p.mass * r3_inv * dx
 				ga.pot += node.p.mass * r_inv
@@ -39,7 +39,7 @@ function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{
 		if r2 > (node.length[1] / openingangle)^2
 			#println("skip node ", i)
 			ga.mass += node.n.mass
-			r_inv = sqrt(1.0 / r2)
+			r_inv = sqrt(1.0 / (r2 + softening^2))
 			r3_inv = r_inv^3
 			ga.acc += node.n.mass * r3_inv * dx
 			ga.pot += node.n.mass * r_inv
@@ -49,12 +49,11 @@ function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{
 		else
 	        @inbounds for i in 1:2^N
 	            #println("open this node")
-	            gravity_treewalk!(ga, p, node.child[i], openingangle, boxsizes)
+	            gravity_treewalk!(ga, p, node.child[i], openingangle, softening, boxsizes)
 	        end
 		end
     end
 end
-
 
 function gravity_bruteforce!(ga::GravTreeGather{N,T}, p::SVector{N,T}, X::Vector{SVector{N,T}},
 							 mass::Vector{T}, boxsizes::SVector{N,T}) where {N,T}

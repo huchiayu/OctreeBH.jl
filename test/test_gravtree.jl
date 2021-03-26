@@ -32,9 +32,9 @@ x = @SVector rand(N)
 
 boxsizes = @SVector(ones(N)) * BOXSIZE  #for periodic B.C.
 
-
+softening = BOXSIZE / Npart^(1/3.)
 ga = GravTreeGather{N,T}()
-gravity_treewalk!(ga,x,tree,ANGLE,boxsizes)
+gravity_treewalk!(ga,x,tree,ANGLE,softening,boxsizes)
 @show ga.pot
 
 ga_bf = GravTreeGather{N,T}()
