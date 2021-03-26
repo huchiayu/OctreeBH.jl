@@ -1,5 +1,22 @@
 using OctreeBH
+import OctreeBH: AbstractData, assign_additional_node_data!
+
 using StaticArrays
+
+mutable struct Data2{N,T<:Real} <: AbstractData{N,T}
+	pos::SVector{N,T}
+	idx::Int64
+	hsml::T
+	mass::T
+	#define additional members below
+	massH2::T
+end
+
+Data2{N,T}() where {N,T} = Data2{N,T}(zero(SVector{N,T}),0,0,0,0)
+
+function assign_additional_node_data!(n::Data2, old::Data2, new::Data2)
+	n.massH2 = old.massH2 + new.massH2
+end
 
 const BOXSIZE = 1.0
 
@@ -27,7 +44,7 @@ hsml = ones(Npart) .* hsml0 .* ( 1 .+ δ .* (rand(Npart) .- 0.5) )
 
 mass = ones(Npart) #particle mass
 
-part = [Data{N,T}(SVector(X[i]), i, hsml[i], mass[i]) for i in eachindex(X)]
+part = [Data2{N,T}(SVector(X[i]), i, hsml[i], mass[i], 0.6*mass[i]) for i in eachindex(X)]
 
 #build the tree
 tree = buildtree(part, center, topnode_length);
