@@ -5,39 +5,35 @@
 [![Build Status](https://github.com/huchiayu/OctreeBH.jl/workflows/CI/badge.svg)](https://github.com/huchiayu/OctreeBH.jl/actions)
 [![Coverage](https://codecov.io/gh/huchiayu/OctreeBH.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/huchiayu/OctreeBH.jl)
 
-```OctreeBH``` is an implementation of octree that is suitable for N-body problems using the Barnes–Hut approximation. Namely, tree nodes carry information which can be summed or compared in an efficient way. Neighbor search can be done in either "gather" or "scatter" appraoch, which is particularly useful in [smoothed-particle hydrodynamics](https://en.wikipedia.org/wiki/Smoothed-particle_hydrodynamics). Boundary conditions can be open, periodic, or mixed (e.g. periodic in x & y while open in z). Spatial dimension (N) can be any arbitrary postive integer.
+```OctreeBH``` is an implementation of octree for solving N-body problems using the [Barnes–Hut approximation](https://en.wikipedia.org/wiki/Barnes%E2%80%93Hut_simulation). Namely, tree nodes carry information that can be summed or compared in an efficient way. The package provides two main functionalities: (1) finding particles within a given radius (neighbor search) and (2) calculating gravitational acceleration in an N-body system. Neighbor search can be done in either the "gather" or "scatter" approach, which is particularly useful in [smoothed-particle hydrodynamics](https://en.wikipedia.org/wiki/Smoothed-particle_hydrodynamics). Gravitational acceleration adopts the monopole approximation, i.e., distant particles are clustered together and treated as a point mass located at their center of mass. Boundary conditions can be open, periodic, or mixed (e.g. periodic in x & y while open in z). Spatial dimension (N) can be any arbitrary positive integer.
 
 
 # Quick Start
+Finding particles within a searching radius ```hsml0``` centered at ```x```: 
 ```
 using OctreeBH
 using StaticArrays
 
-const BOXSIZE = 1.0
-const N = 3 #spatial dimension
-const Npart = 100000 #number of particles
+N = 3 #spatial dimension
+T = Float64
 
-#desired number of neighbor particles (ngbs) within a search radius (hsml)
-const Nngb0 = 32
+Npart = 100000 #number of particles
+hsml0 = 0.04 #searching radius
+boxsizes = @SVector(ones(N)) #for periodic B.C.
+topnode_length = @SVector(ones(N)) #size of the top tree node
+center = topnode_length .* 0.5 #center of the top tree ndoe
 
-#searching radius that should contain roughly Nngb0 neighboring particles
-const hsml0 = BOXSIZE * (Nngb0/(4*pi/3*Npart))^(1/N)
+hsml = ones(Npart) .* hsml0 #particle smoothing length 
+mass = ones(Npart) #particle mass
 
 #randomly distributing particles
 X = [@SVector rand(N) for _ in 1:Npart]
 
-topnode_length = @SVector(ones(N)) * BOXSIZE  #actual length of tree
-boxsizes       = @SVector(ones(N)) * BOXSIZE  #for periodic B.C.
-center = topnode_length .* 0.5
-
-#individual smoothing length (only relevant for scatter ngbs)
-δ = 0. #add a small perturbation
-hsml = ones(Npart) .* hsml0 .* ( 1 .+ δ .* (rand(Npart) .- 0.5) )
-
-mass = ones(Npart) #particle mass
+#store particle data into the struct "Data" 
+part = [Data{N,T}(X[i], i, hsml[i], mass[i]) for i in 1:Npart]
 
 #build the tree
-tree = buildtree(X, hsml, mass, center, topnode_length);
+tree = buildtree(part, center, topnode_length);
 
 x = @SVector rand(N) #search center
 
@@ -48,11 +44,12 @@ idx_ngbs_g = get_gather_ngb_tree(x, hsml0, tree, boxsizes)
 idx_ngbs_s = get_scatter_ngb_tree(x, tree, boxsizes)
 
 #for constant hsml, the two ngbs are identical
-print( all(idx_ngbs_g.==idx_ngbs_s) )
+@show length(idx_ngbs_g), length(idx_ngbs_s)
 ```
 
 # Example
-N body gravitational system
+The example code [nbody.jl](https://github.com/huchiayu/OctreeBH.jl/blob/main/test/nbody.jl) solves a gravitational N-body system using the leapfrog integration scheme.
+
 ![movie](https://user-images.githubusercontent.com/23061774/112749075-417aed00-8fc0-11eb-8f18-9793b1e82f57.gif)
 
 
