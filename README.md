@@ -51,6 +51,11 @@ idx_ngbs_s = get_scatter_ngb_tree(x, tree, boxsizes)
 print( all(idx_ngbs_g.==idx_ngbs_s) )
 ```
 
+# Example
+N body gravitational system
+![movie](https://user-images.githubusercontent.com/23061774/112749075-417aed00-8fc0-11eb-8f18-9793b1e82f57.gif)
+
+
 # Author
 Chia-Yu Hu @ Max Planck Institute for Extraterrestrial Physics (cyhu.astro@gmail.com)
 
