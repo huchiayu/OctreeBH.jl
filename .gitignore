@@ -33,5 +33,7 @@ Manifest.toml
 
 ### Figures ###
 *.png
+*.gif
+*.mov
 
 .DS_Store
