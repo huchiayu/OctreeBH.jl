@@ -48,6 +48,10 @@ idx_ngbs_s = get_scatter_ngb_tree(x, tree, boxsizes)
 ```
 
 # Example
+Neighbor search (gather vs. scatter).
+![vis_tree](https://user-images.githubusercontent.com/23061774/113935847-4ed17c00-97f7-11eb-89c7-22031ad8917c.png)
+
+
 The example code [nbody.jl](https://github.com/huchiayu/OctreeBH.jl/blob/main/test/nbody.jl) solves a gravitational N-body system using the leapfrog integration scheme.
 
 ![movie](https://user-images.githubusercontent.com/23061774/112749075-417aed00-8fc0-11eb-8f18-9793b1e82f57.gif)
