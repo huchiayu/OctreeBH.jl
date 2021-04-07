@@ -48,7 +48,8 @@ idx_ngbs_s = get_scatter_ngb_tree(x, tree, boxsizes)
 ```
 
 # Example
-Neighbor search (gather vs. scatter).
+The example code visualization.jl visualizes the (quad)tree structure for a given particle configuration in 2D. It also illustrates the difference between the gather neighbors (lower left) and scatter neighbors (upper right), which are identical in this particular case as the smoothing length (search radius) is constant.
+
 ![vis_tree](https://user-images.githubusercontent.com/23061774/113936917-c0f69080-97f8-11eb-880e-4fd8019b9f49.png)
 
 
