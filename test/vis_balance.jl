@@ -48,8 +48,8 @@ end
 const BOXSIZE = 1.0
 
 const T = Float64
-const N = 3 #spatial dimension
-const Npart = 100 #number of particles
+const N = 2 #spatial dimension
+const Npart = 300 #number of particles
 const hsml0 = 0.15 #searching radius
 
 using Random
@@ -83,7 +83,7 @@ ax.set_aspect(1)
 @time plot_tree_grid(tree, ix, iy, "grey", ax)
 savefig("balance_none.png")
 
-max_depth = 6
+max_depth = 9
 @time for i in max_depth:-1:1
 	println("balancing the tree at level ", i)
 	balance!(tree, i, tree.length[1])

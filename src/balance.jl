@@ -17,6 +17,7 @@ getbit(num, j) = ( num >> (j-1) ) & 1
 #flip jth digit of num and return
 flipbit(num, j) = num ⊻ ( 1 << (j-1) )
 
+const PERIODIC = true
 
 
 #for j in 1:2
@@ -77,7 +78,12 @@ function check_ngb_node_and_refine_if_necessary(node, dim, direction, length0)
     #we reach the root which means that we're at the boundary and there is no ngb along this direction
     uncle = check_ngb_node_and_refine_if_necessary(node.parent, dim, direction, length0) #an uncle is the sibling of a parent (duh)
     if uncle == nothing #root!
-        return uncle
+		if PERIODIC
+			#@show "root!!!"
+			uncle = node.parent #set uncle as node's parent and proceed (don't return!!!)
+		else
+			return uncle
+		end
     end
 
     #if uncle is a leaf, then it's a least 2x bigger than node, so it doesn't matter if node is NW or NE
