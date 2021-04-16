@@ -18,7 +18,8 @@ function getChildIndex(pos::SVector{N,T}, node::Node{N,T,D}) where {N,T,D<:Abstr
     idx = 0
     @inbounds for i in 1:N
         if pos[i] > node.center[i]
-            idx |= 2^(i-1)
+            idx |= 1<<(i-1)
+            #idx |= 2^(i-1)
         end
         #println(i, 2^(i-1), idx)
     end
