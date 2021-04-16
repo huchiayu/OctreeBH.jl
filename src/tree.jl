@@ -5,10 +5,11 @@ mutable struct Node{N, T<:Real, D<:AbstractData{N,T}}
 	n::Union{D, Nothing}           #initilize when a nonempty leaf becomes a node (1->2)
 	child::Union{Array{Node{N,T,D},1}, Nothing}  #initilize when a nonempty leaf becomes a node (1->2)
 	parent::Union{Node{N,T,D}, Nothing}  #only needed for bottom-up treewalk (==nothing for root)
+	ID::Int #from 1 to 2^N
 end
 
 Node{N,T,D}(center::SVector{N,T}, length::SVector{N,T}) where {N,T,D<:AbstractData{N,T}} =
-Node{N,T,D}(center::SVector{N,T}, length::SVector{N,T}, nothing, nothing, nothing, nothing)
+Node{N,T,D}(center::SVector{N,T}, length::SVector{N,T}, nothing, nothing, nothing, nothing, zero(Int))
 
 function isLeaf(node::Node{N,T,D}) where{N,T,D}
     return node.child == nothing ? true : false
@@ -64,6 +65,7 @@ function insertpart!(p::D, node::Node{N,T,D}) where {N,T,D<:AbstractData{N,T}}
                 #println("center = ", childcenter, "  edge_min = ", childcenter - 0.25*node.length,
                 #        "  edge_max = ", childcenter + 0.25*node.length)
 				node.child[i].parent = node
+				node.child[i].ID = i
             end
 			#println("insert back the preexsisting particle...")
 			insertpart!(node.p, node.child[getChildIndex(node.p.pos, node)])
