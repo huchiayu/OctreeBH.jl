@@ -11,9 +11,6 @@
 
 #check balance level by level using a post-order treewalk (from deepest level up to root)
 
-#return the bit of num at jth digit
-getbit(num, j) = ( num >> (j-1) ) & 1
-
 #flip jth digit of num and return
 flipbit(num, j) = num ⊻ ( 1 << (j-1) )
 

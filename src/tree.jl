@@ -44,7 +44,12 @@ end
 
 const offset = getoffset_precomp(3) #precomputed offset array for 3D
 
-getoffset(i::T, N::T) where {T<:Int} = ([2*parse(T, bitstring(i-1)[end-(j-1)])-1 for j in 1:N])
+
+#return the bit of num at jth digit
+getbit(num, j) = ( num >> (j-1) ) & 1
+
+#getoffset(i::T, N::T) where {T<:Int} = ([2*parse(T, bitstring(i-1)[end-(j-1)])-1 for j in 1:N])
+getoffset(i::T, N::T) where {T<:Int} = getbit.(i-1, (1:N)) .*2 .-1
 
 function insertpart!(p::D, node::Node{N,T,D}) where {N,T,D<:AbstractData{N,T}}
     if isLeaf(node)
