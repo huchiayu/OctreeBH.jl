@@ -64,7 +64,7 @@ function insertpart!(p::D, node::Node{N,T,D}) where {N,T,D<:AbstractData{N,T}}
             @inbounds for i in 1:2^N
                 #println(getoffset(i,N))
 				#childcenter = node.center + offset[:,i] * 0.25 .* node.length #precomputed offset. This leads to faster tree build but no flexible dimension
-				childcenter = node.center + SVector{N}(getoffset(i,N)) * 0.25 .* node.length
+				childcenter = node.center + getoffset(i,N) .* 0.25 .* node.length
                 #println("childcenter=", childcenter, "  getoffset(i,N)=", getoffset(i,N))
 				node.child[i] = Node{N,T,D}(childcenter, 0.5 .* node.length)
                 #println("center = ", childcenter, "  edge_min = ", childcenter - 0.25*node.length,
