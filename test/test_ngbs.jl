@@ -6,13 +6,15 @@ const BOXSIZE = 1.0
 const N = 3 #spatial dimension
 const T = Float64
 
-const Npart = 100000 #number of particles
+Npart = 100000 #number of particles
 
 #desired number of neighbor particles (ngbs) within a search radius (hsml)
-const Nngb0 = 32
+Nngb0 = 32
 
 #searching radius that should contain roughly Nngb0 neighboring particles
-const hsml0 = BOXSIZE * (Nngb0/(4*pi/3*Npart))^(1/N)
+hsml0 = BOXSIZE * (Nngb0/(4*pi/3*Npart))^(1/N)
+
+@testset "ngbs" begin
 
 #randomly distributing particles
 X = [@SVector rand(N) for _ in 1:Npart]
@@ -44,4 +46,6 @@ idx_ngbs_g = get_gather_ngb_tree(x, hsml0, tree, boxsizes)
 idx_ngbs_s = get_scatter_ngb_tree(x, tree, boxsizes)
 
 #for constant hsml, the two ngbs are identical
-@show length(idx_ngbs_g), length(idx_ngbs_s)
+@test all(sort(idx_ngbs_g) .== sort(idx_ngbs_s))
+
+end

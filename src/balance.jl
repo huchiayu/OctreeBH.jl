@@ -1,14 +1,3 @@
-#NE = [1,1]
-#NW = [0,1]
-#SE = [1,0]
-#SW = [0,0]
-
-
-#dim = 1: x-direction , or E & W
-#dim = 2: y-direction , or N & S
-
-#direction = 0 or 1 (control E or W if dim == 1; N or S if dim ==2)
-
 #check balance level by level using a post-order treewalk (from deepest level up to root)
 
 #flip jth digit of num and return
@@ -16,12 +5,50 @@ flipbit(num, j) = num ⊻ ( 1 << (j-1) )
 
 const PERIODIC = true
 
+function set_max_depth_AMR!(tree::Node{N,T,D}, max_depth::Int) where {N,T,D}
+	delete_high_level_nodes!(tree, max_depth, tree.length[1])
+end
 
-#for j in 1:2
-#    for i in 1:2^2
-#        @show getbit(i-1,j), bitstring((i-1))[end-8:end], bitstring(flipbit(i-1,j))[end-8:end]
-#    end
-#end
+function delete_high_level_nodes!(node::Node{N,T,D}, max_depth::Int, root_node_length::T) where {N,T,D}
+	depth = log2(round(root_node_length / node.length[1]))
+	if !isLeaf(node)
+        #println("This is a node... ")
+		if depth < max_depth
+	    	@inbounds for i in 1:2^N
+	        	#println("open this node")
+				delete_high_level_nodes!(node.child[i], max_depth, root_node_length)
+	    	end
+		else
+			#delete child nodes
+			node.child = nothing
+		end
+    end
+end
+
+function get_min_node_length!(length::T, node::Node{N,T,D}) where{N,T,D}
+	if isLeaf(node)
+		return min(length, node.length[1])
+	else
+		@inbounds for i in 1:2^N
+			length = get_min_node_length!(length, node.child[i])
+		end
+		return length
+	end
+end
+
+function get_max_tree_depth(tree::Node{N,T,D}) where{N,T,D}
+	len_min = 1000.
+	len_min = get_min_node_length!(len_min, tree)
+	return Int( log2( round( tree.length[1] / len_min) ) )
+end
+
+function balance_all_level!(tree::Node{N,T,D}) where{N,T,D}
+	max_depth = get_max_tree_depth(tree)
+	for i in max_depth:-1:1
+		#println("balancing the tree at level ", i)
+		balance!(tree, i, tree.length[1])
+	end
+end
 
 function balance!(node::Node{N,T,D}, max_depth::Int, root_node_length::T) where{N,T,D}
 	depth = Int(log2(round(root_node_length / node.length[1])))
@@ -33,8 +60,10 @@ function balance!(node::Node{N,T,D}, max_depth::Int, root_node_length::T) where{
 				#println("in a leaf node at level ", depth, "... check balance!")
 				for i in 1:N
 					#check both directions (0 & 1) along each dimension (i), which is N*2 directions in total
-					check_ngb_node_and_refine_if_necessary(node, i, 0, node.length[1])
-					check_ngb_node_and_refine_if_necessary(node, i, 1, node.length[1])
+					ngb_node_0 = check_ngb_node_and_refine_if_necessary(node, i, 0, node.length[1])
+					ngb_node_1 = check_ngb_node_and_refine_if_necessary(node, i, 1, node.length[1])
+					@assert (ngb_node_0.length[1] / node.length[1]) < 2.5
+					@assert (ngb_node_1.length[1] / node.length[1]) < 2.5
 				end
 			end
 		end
@@ -88,7 +117,7 @@ function check_ngb_node_and_refine_if_necessary(node, dim, direction, length0)
     if isLeaf(uncle)
         if uncle.length[1] / length0 > 2.5 #should be just 2 but use 2.5 to avoid round-off error
 			#println("uncle.length = ", uncle.length[1], "  length0 = ", length0, "  refine the node!!!")
-            refine_node!(uncle)
+            split_node!(uncle)
         else
             return uncle #only differ by a factor of 2 (one level)
         end
@@ -102,23 +131,25 @@ end
 
 
 
+#for j in 1:2
+#    for i in 1:2^2
+#        @show getbit(i-1,j), bitstring((i-1))[end-8:end], bitstring(flipbit(i-1,j))[end-8:end]
+#    end
+#end
 
 
-function refine_node!(node::Node{N,T,D}) where{N,T,D}
-    node.child = Array{Node{N,T,D},1}(undef,2^N)
-    @inbounds for i in 1:2^N
-        #println(getoffset(i,N))
-        #childcenter = node.center + offset[:,i] * 0.25 .* node.length #precomputed offset. This leads to faster tree build but no flexible dimension
-        childcenter = node.center + SVector{N}(getoffset(i,N)) * 0.25 .* node.length
-        #println("childcenter=", childcenter, "  getoffset(i,N)=", getoffset(i,N))
-        node.child[i] = Node{N,T,D}(childcenter, 0.5 .* node.length)
-        #println("center = ", childcenter, "  edge_min = ", childcenter - 0.25*node.length,
-        #        "  edge_max = ", childcenter + 0.25*node.length)
-		node.child[i].parent = node
-		node.child[i].ID = i
-    end
-    node.n = D() #optional as we just need the correct tree structure and the node data will be assign when we do the p2g mapping
-end
+#NE = [1,1]
+#NW = [0,1]
+#SE = [1,0]
+#SW = [0,0]
+
+
+#dim = 1: x-direction , or E & W
+#dim = 2: y-direction , or N & S
+
+#direction = 0 or 1 (control E or W if dim == 1; N or S if dim ==2)
+
+
 
 #if node is a north child, then its southern ngb is its sibling, so the balance is fine, so we don't have to check its southern ngb
 #we only need to check its northern ngb
@@ -159,7 +190,7 @@ check_ngb_node_and_refine_if_necessary(node, dim, direction, length0)
             #we check if the uncle needs to be refined
             if isLeaf(uncle)
                 if uncle.length / length0 > 2.5 #should be just 2 but use 2.5 to avoid round-off error
-                    refine_node!(uncle)
+                    split_node!(uncle)
                 else
                     return uncle #only differ by a factor of 2 (one level)
                 end

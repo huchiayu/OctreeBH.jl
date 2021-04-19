@@ -25,26 +25,6 @@ function plot_tree_grid(node::Node{N,T}, ix, iy, cc, ax) where {N,T}
 	end
 end
 
-function draw_circle_nonperiodic(x, radius, ix, iy, cc, ax)
-    circle = plt.Circle((x[ix]            , x[iy])            , radius, fill=false, color="tab:red")
-    ax.add_artist(circle)
-end
-
-function draw_circle_periodic(x, radius, ix, iy, boxsizes, cc, ax)
-	#draw a circle at point x and the four nearest periodic images
-    circle = plt.Circle((x[ix]            , x[iy])            , radius, fill=false, color=cc)
-    ax.add_artist(circle)
-    circle = plt.Circle((x[ix]+boxsizes[1], x[iy])            , radius, fill=false, color=cc)
-    ax.add_artist(circle)
-    circle = plt.Circle((x[ix]-boxsizes[1], x[iy])            , radius, fill=false, color=cc)
-    ax.add_artist(circle)
-    circle = plt.Circle((x[ix]            , x[iy]+boxsizes[2]), radius, fill=false, color=cc)
-    ax.add_artist(circle)
-    circle = plt.Circle((x[ix]            , x[iy]-boxsizes[2]), radius, fill=false, color=cc)
-    ax.add_artist(circle)
-end
-
-
 const BOXSIZE = 1.0
 
 const T = Float64
@@ -68,6 +48,10 @@ part = [Data{N,T}(SVector(X[i]), i, hsml[i], mass[i]) for i in eachindex(X)]
 #build the tree
 @time tree = buildtree(part, center, topnode_length);
 
+@show max_depth = get_max_tree_depth(tree)
+
+#set_max_depth_AMR!(tree, max_depth)
+
 boxsizes = @SVector(ones(N)) * BOXSIZE  #for periodic B.C.
 
 
@@ -83,10 +67,10 @@ ax.set_aspect(1)
 @time plot_tree_grid(tree, ix, iy, "grey", ax)
 savefig("balance_none.png")
 
-max_depth = 9
+#max_depth = 9
 @time for i in max_depth:-1:1
 	println("balancing the tree at level ", i)
-	balance!(tree, i, tree.length[1])
+	OctreeBH.balance!(tree, i, tree.length[1])
 
 	clf()
 	fig, ax = subplots(1, 1, figsize=(8, 8))

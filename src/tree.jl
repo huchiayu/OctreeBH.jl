@@ -60,22 +60,9 @@ function insertpart!(p::D, node::Node{N,T,D}) where {N,T,D<:AbstractData{N,T}}
         else
             #println("at a leaf with a preexisting particle, so we split it")
 			#initializing the child nodes and calculate their centers
-            node.child = Array{Node{N,T,D},1}(undef,2^N)
-            @inbounds for i in 1:2^N
-                #println(getoffset(i,N))
-				#childcenter = node.center + offset[:,i] * 0.25 .* node.length #precomputed offset. This leads to faster tree build but no flexible dimension
-				childcenter = node.center + getoffset(i,N) .* 0.25 .* node.length
-                #println("childcenter=", childcenter, "  getoffset(i,N)=", getoffset(i,N))
-				node.child[i] = Node{N,T,D}(childcenter, 0.5 .* node.length)
-                #println("center = ", childcenter, "  edge_min = ", childcenter - 0.25*node.length,
-                #        "  edge_max = ", childcenter + 0.25*node.length)
-				node.child[i].parent = node
-				node.child[i].ID = i
-            end
+			split_node!(node)
 			#println("insert back the preexsisting particle...")
 			insertpart!(node.p, node.child[getChildIndex(node.p.pos, node)])
-			#since it's not a leaf node anymore, initialize node data
-			node.n = D()
 			#push!(node.n.idxs, node.p.idx, p.idx)
 			assign_node_data!(node.n, node.p, p)
             #println("insert the new particle...")
@@ -89,6 +76,24 @@ function insertpart!(p::D, node::Node{N,T,D}) where {N,T,D<:AbstractData{N,T}}
     end
 end
 
+function split_node!(node::Node{N,T,D}) where{N,T,D}
+    node.child = Array{Node{N,T,D},1}(undef,2^N)
+    @inbounds for i in 1:2^N
+		#childcenter = node.center + offset[:,i] * 0.25 .* node.length #precomputed offset. This leads to faster tree build but no flexible dimension
+        childcenter = node.center + getoffset(i,N) .* 0.25 .* node.length
+        #println("childcenter=", childcenter, "  getoffset(i,N)=", getoffset(i,N))
+        node.child[i] = Node{N,T,D}(childcenter, 0.5 .* node.length)
+        #println("center = ", childcenter, "  edge_min = ", childcenter - 0.25*node.length,
+        #        "  edge_max = ", childcenter + 0.25*node.length)
+		node.child[i].parent = node
+		node.child[i].ID = i
+    end
+	#since it's not a leaf node anymore, initialize node data
+    node.n = D()
+end
+
+
+
 #build a tree for given particle locations X
 #we distinguish between topnode_length (for the tree) and boxsizes (for PBC wrap)
 function buildtree(data::Vector{D}, center::SVector{N,T}, topnode_length::SVector{N,T}) where {N,T,D<:AbstractData{N,T}}
@@ -97,6 +102,7 @@ function buildtree(data::Vector{D}, center::SVector{N,T}, topnode_length::SVecto
 	tree = Node{N,T,D}(center, topnode_length)
 
 	#insert particles one by one
+	length_min = Inf
     @inbounds for i in eachindex(data)
 		insertpart!(data[i], tree)
     end

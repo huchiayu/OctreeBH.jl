@@ -1,14 +1,15 @@
 using OctreeBH
 using StaticArrays
+using Test
 
 const BOXSIZE = 1.0
 
 const N = 3 #spatial dimension
 const T = Float64
 
-const Npart = 1000 #number of particles
+Npart = 1000 #number of particles
 
-const ANGLE = 0.7
+@testset "gravtree" begin
 
 #randomly distributing particles
 X = [@SVector rand(N) for _ in 1:Npart]
@@ -28,15 +29,25 @@ part = [Data{N,T}(SVector(X[i]), i, hsml[i], mass[i]) for i in eachindex(X)]
 tree = buildtree(part, center, topnode_length);
 
 #search center
-x = @SVector rand(N)
+#x = @SVector rand(N)
 
 boxsizes = @SVector(ones(N)) * BOXSIZE  #for periodic B.C.
 
-softening = BOXSIZE / Npart^(1/3.)
-ga = GravTreeGather{N,T}()
-gravity_treewalk!(ga,x,tree,ANGLE,softening,boxsizes)
-@show ga.pot
+#softening = BOXSIZE / Npart^(1/3.)
+softening = 0.0
+ANGLE = 0.0
 
-ga_bf = GravTreeGather{N,T}()
-gravity_bruteforce!(ga_bf,x,X,mass,boxsizes)
-@show ga_bf.pot
+pot = zeros(Npart)
+pot_bf = zeros(Npart)
+for i in eachindex(X)
+    ga = GravTreeGather{N,T}()
+    gravity_treewalk!(ga,X[i],tree,ANGLE,softening,boxsizes)
+    pot[i] = ga.pot
+
+    ga_bf = GravTreeGather{N,T}()
+    gravity_bruteforce!(ga_bf,X[i],X,mass,boxsizes)
+    pot_bf[i] = ga_bf.pot
+end
+@test all(pot .≈ pot_bf)
+
+end

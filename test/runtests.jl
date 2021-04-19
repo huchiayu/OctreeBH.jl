@@ -1,6 +1,6 @@
 using OctreeBH
 using Test
 
-@testset "OctreeBH.jl" begin
-    # Write your tests here.
-end
+include("test_ngbs.jl")
+include("test_gravtree.jl")
+include("test_balance.jl")
