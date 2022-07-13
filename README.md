@@ -61,8 +61,7 @@ The example code [nbody.jl](https://github.com/huchiayu/OctreeBH.jl/blob/main/te
 # Scaling 
 OctreeBH.jl follows the N*log(N) scaling as opposed to the naive method that scales as N^2
 
-![scaling_octree](https://user-images.githubusercontent.com/23061774/178747692-e877d0e5-59a6-46aa-a494-4f53ae19eab2.png)
-
+![scaling_octree](https://user-images.githubusercontent.com/23061774/178755027-f33787f1-dc6b-4f0f-9a03-a27f66a28535.png)
 
 # Author
 Chia-Yu Hu @ Max Planck Institute for Extraterrestrial Physics (cyhu.astro@gmail.com)
