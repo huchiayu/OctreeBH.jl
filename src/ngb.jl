@@ -17,12 +17,6 @@ function get_ptl_in_box_gather(radius::T, p::SVector{N,T}, node::Node{N,T,D}, bo
 				return  #no overlap, so node can be skipped!
 			end
 		end
-		#=
-		if get_distance2(node.center, p, boxsizes, true) + 0.75 * node.length[1]^2 < radius^2
-			append!(idx_ngbs, node.n.idxs)
-			return
-		end
-		=#
 		#println("node and radius overlap, so we need to open the node and check its children")
         @inbounds for i in 1:2^N
 			get_ptl_in_box_gather(radius, p, node.child[i], boxsizes, idx_ngbs)

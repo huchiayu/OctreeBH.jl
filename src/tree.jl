@@ -27,24 +27,6 @@ function getChildIndex(pos::SVector{N,T}, node::Node{N,T,D}) where {N,T,D<:Abstr
     return idx+1
 end
 
-function getoffset_precomp(N::T) where {T}
-	offset_child = zeros(T,N,2^N)
-	for i in 1:2^N
-	    a = bitstring(i-1)
-	    #offset = SVector(2*parse(Int, a[end])-1, 2*parse(Int, a[end-1])-1, 2*parse(Int, a[end-2])-1)
-	    offset = T[]
-	    @inbounds for j in 1:N
-	        push!(offset,2*parse(T, a[end-(j-1)])-1)
-	    end
-	    #println(offset)
-		offset_child[:,i] = offset
-	end
-	SMatrix{N,2^N,T}(offset_child)
-end
-
-const offset = getoffset_precomp(3) #precomputed offset array for 3D
-
-
 #return the bit of num at jth digit
 getbit(num, j) = ( num >> (j-1) ) & 1
 
@@ -102,7 +84,6 @@ function buildtree(data::Vector{D}, center::SVector{N,T}, topnode_length::SVecto
 	tree = Node{N,T,D}(center, topnode_length)
 
 	#insert particles one by one
-	length_min = Inf
     @inbounds for i in eachindex(data)
 		insertpart!(data[i], tree)
     end
@@ -113,20 +94,6 @@ end
 function nearest(x::T, boxsize::T) where {T}
 	#can be negative as this is just a vector component
     return (x > 0.5*boxsize) ? (x - boxsize) : ( (x < -0.5*boxsize) ? (x + boxsize) : x )
-end
-
-function nearest_plain(x::T) where {T}
-    if x < -boxHalf_X
-        x = x + boxHalf_X*2
-    else
-        x = x
-    end
-    if x > boxHalf_X
-        x = x - boxHalf_X*2
-    else
-        x = x
-    end
-    return x
 end
 
 function get_distance2(a::SVector{N,T}, b::SVector{N,T}, boxsizes::SVector{N,T}, periodic::Bool) where {N,T}
