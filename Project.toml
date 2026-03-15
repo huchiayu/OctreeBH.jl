@@ -4,15 +4,23 @@ authors = ["Chia-Yu Hu <cyhu.astro@gmail.com> and contributors"]
 version = "0.2.2"
 
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
+BenchmarkTools = "1.6.3"
+Plots = "1.41.6"
+PyPlot = "2.11.6"
 StaticArrays = "1.0"
+UnicodePlots = "3.8.2"
 julia = "1"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "Random"]
