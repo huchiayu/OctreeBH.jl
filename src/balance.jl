@@ -85,7 +85,7 @@ end
 function check_ngb_node_and_refine_if_necessary(node, dim, direction, length0)
     #if dim == 2 #find N & S ngbs
     #if direction == 1 #we're looking for the north ngb
-    if node.parent == nothing
+    if isnothing(node.parent)
         #node is root! we're at the boundary! #TODO: peridoic B.C.?
         return nothing
     end
@@ -103,7 +103,7 @@ function check_ngb_node_and_refine_if_necessary(node, dim, direction, length0)
     #then we keep moving up (to the parent's parent) until we find a parent who is a south child or until
     #we reach the root which means that we're at the boundary and there is no ngb along this direction
     uncle = check_ngb_node_and_refine_if_necessary(node.parent, dim, direction, length0) #an uncle is the sibling of a parent (duh)
-    if uncle == nothing #root!
+    if isnothing(uncle) #root!
 		if PERIODIC
 			#@show "root!!!"
 			uncle = node.parent #set uncle as node's parent and proceed (don't return!!!)
@@ -182,7 +182,7 @@ check_ngb_node_and_refine_if_necessary(node, dim, direction, length0)
             #then we keep moving up (to the parent's parent) until we find a parent who is a south child or until
             #we reach the root which means that we're at the boundary and there is no ngb along this direction
             uncle = check_ngb_node_and_refine_if_necessary(node.parent, dim, direction, length0) #an uncle is the sibling of a parent (duh)
-            if uncle == nothing #root!
+            if isnothing(uncle) #root!
                 return uncle
             end
 

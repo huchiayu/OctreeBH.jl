@@ -13,7 +13,7 @@ function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{
 	openingangle::T, softening::T, boxsizes::SVector{N,T}) where {N,T,D}
     if isLeaf(node)
         #println("in a leaf node")
-        if node.p != nothing
+        if !isnothing(node.p)
             #println("nonempty leaf")
             ga.mass += node.p.mass
             dx = nearest.(node.p.pos - p, boxsizes)

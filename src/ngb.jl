@@ -2,7 +2,7 @@
 function get_ptl_in_box_gather(radius::T, p::SVector{N,T}, node::Node{N,T,D}, boxsizes::SVector{N,T}, idx_ngbs::Vector{Int64}) where {N,T,D<:AbstractData{N,T}}
     if isLeaf(node)
         #println("in a leaf node")
-        if node.p != nothing
+        if !isnothing(node.p)
             #println("nonempty leaf")
 	    	dist2 = get_distance2(node.p.pos, p, boxsizes, true)
             if dist2 < radius^2
@@ -34,7 +34,7 @@ end
 function get_ptl_in_box_scatter(p::SVector{N,T}, node::Node{N,T,D}, boxsizes::SVector{N,T}, idx_ngbs::Vector{Int64}) where {N,T,D<:AbstractData{N,T}}
     if isLeaf(node)
         #println("in a leaf node")
-		if node.p != nothing
+		if !isnothing(node.p)
             #println("nonempty leaf")
 	    	dist2 = get_distance2(node.p.pos, p, boxsizes, true)
             if dist2 < node.p.hsml^2

@@ -12,7 +12,7 @@ Node{N,T,D}(center::SVector{N,T}, length::SVector{N,T}) where {N,T,D<:AbstractDa
 Node{N,T,D}(center::SVector{N,T}, length::SVector{N,T}, nothing, nothing, nothing, nothing, zero(Int))
 
 function isLeaf(node::Node{N,T,D}) where{N,T,D}
-    return node.child == nothing ? true : false
+    return isnothing(node.child)
 end
 
 function getChildIndex(pos::SVector{N,T}, node::Node{N,T,D}) where {N,T,D<:AbstractData{N,T}}
@@ -53,9 +53,9 @@ getoffset(i::T, N::T) where {T<:Int} = getbit.(i-1, (1:N)) .*2 .-1
 
 function insertpart!(p::D, node::Node{N,T,D}) where {N,T,D<:AbstractData{N,T}}
     if isLeaf(node)
-        if node.p == nothing
+        if isnothing(node.p)
             #println("at an empty leaf, insert particle and we're done")
-			@assert node.n == nothing
+			@assert isnothing(node.n)
 			node.p = p
         else
             #println("at a leaf with a preexisting particle, so we split it")
