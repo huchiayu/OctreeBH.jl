@@ -7,7 +7,7 @@ mutable struct Data{N,T<:Real} <: AbstractData{N,T}
 	mass::T
 end
 
-Data{N,T}() where {N,T} = Data{N,T}(zero(SVector{N,T}),0,0,0)
+Data{N,T}() where {N,T} = Data{N,T}(zero(SVector{N,T}),0,zero(T),zero(T))
 
 function assign_node_data!(n::D, old::D, new::D) where {D<:AbstractData}
 	masssum = old.mass + new.mass

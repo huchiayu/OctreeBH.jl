@@ -6,7 +6,7 @@ mutable struct GravTreeGather{N,T}
     #nodelengths::Vector{Vector{T}} #for debugging/visualization
 end
 
-GravTreeGather{N,T}() where {N,T} = GravTreeGather{N,T}(zero(SVector{N,T}),0,0)
+GravTreeGather{N,T}() where {N,T} = GravTreeGather{N,T}(zero(SVector{N,T}),zero(T),zero(T))
 
 #when changing the argument of treewalk, remember to also change the recursive treewalk call inside the function body!
 function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{N,T,D},
@@ -19,8 +19,8 @@ function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{
             dx = nearest.(node.p.pos - p, boxsizes)
 			r2 = sum(dx.^2)
 			#@show r2, node.p.pos, p
-			if r2 > 0.0 #exclude self contribution (r2=0)
-				r_inv = sqrt(1.0 / (r2 + softening^2))
+			if r2 > zero(T) #exclude self contribution (r2=0)
+				r_inv = sqrt(one(T) / (r2 + softening^2))
 				r3_inv = r_inv^3
 				ga.acc += node.p.mass * r3_inv * dx
 				ga.pot += node.p.mass * r_inv
@@ -39,7 +39,7 @@ function gravity_treewalk!(ga::GravTreeGather{N,T}, p::SVector{N,T}, node::Node{
 		if r2 > (node.length[1] / openingangle)^2
 			#println("skip node ", i)
 			ga.mass += node.n.mass
-			r_inv = sqrt(1.0 / (r2 + softening^2))
+			r_inv = sqrt(one(T) / (r2 + softening^2))
 			r3_inv = r_inv^3
 			ga.acc += node.n.mass * r3_inv * dx
 			ga.pot += node.n.mass * r_inv
@@ -61,8 +61,8 @@ function gravity_bruteforce!(ga::GravTreeGather{N,T}, p::SVector{N,T}, X::Vector
 		ga.mass += mass[i]
 		dx = nearest.(X[i] - p, boxsizes)
 		r2 = sum(dx.^2)
-		if r2 > 0.0 #exclude self contribution (r2=0)
-			r_inv = sqrt(1.0 / r2)
+		if r2 > zero(T) #exclude self contribution (r2=0)
+			r_inv = sqrt(one(T) / r2)
 			r3_inv = r_inv^3
 			ga.acc += mass[i] * r3_inv * dx
 			ga.pot += mass[i] * r_inv
